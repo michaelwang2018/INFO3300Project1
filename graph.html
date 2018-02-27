@@ -9,7 +9,7 @@
 
   <p>
 
-    <svg width="3000" height="600" id="graph">
+    <svg width="1200" height="600" id="graph">
 
     </svg>
 
@@ -17,7 +17,7 @@
 
     // set the dimensions and margins of the graph
     var margin = {top: 20, right: 20, bottom: 30, left: 40},
-        width = 3000 - margin.left - margin.right,
+        width = 1200 - margin.left - margin.right,
         height = 600 - margin.top - margin.bottom;
 
     // set the ranges
@@ -43,14 +43,21 @@
     d3.csv("Median.csv", function(error, data) {
       if (error) throw error;
 
+      var museumsRange = [];
+      
       // format  data
       data.forEach(function(d) {
         d.sales = +d.sales;
+
+        museumsRange.push(parseInt(d.museums));
       });
 
+      console.log(museumsRange);
+
+      console.log(d3.max(museumsRange));
       // Scaling range of the data in the domains
       x.domain(data.map(function(d) { return d.state; }));
-      y.domain([0, d3.max(data, function(d) { return d.museums; })]);
+      y.domain([0, d3.max(museumsRange)]);
 
       // Creating the bar chart rectangles
       svg.selectAll(".bar")
