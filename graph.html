@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
 <html>
+<head>
+  <meta charset="utf-8">
+  <title>INFO3300-Project1</title>
+  <script src="//d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
 
   <p>
-    <script src="//d3js.org/d3.v4.min.js"></script>
+
     <svg width="3000" height="600" id="graph">
 
     </svg>
@@ -67,7 +72,29 @@
           .call(d3.axisLeft(y));
 
     });
+    var states=["AK","VA"];
+    var stateList=[];
+    //Load Museum dataset
+    d3.csv("MuseumList.csv", function(error, data) {
+      if (error) throw error;
+      console.log("Code in the call-back function is only executed when the data file loads.");
+      //Parse ADSTATE for each museum into an array
+      data.forEach(function(d) {
+        stateList.push(d.ADSTATE);
+      });
+      console.log(stateList);
+      var  museumCount = {};
+      stateList.forEach(function(i) { museumCount[i] = (museumCount[i]||0) + 1;});
+      console.log(museumCount);
+
+      //scale of x and y axis
+      //var xScale = d3.scaleLinear().domain([0,50]).range([0,width]);
+      //var yScale = d3.scaleLinear().domain([0,museumCount()]).range([0,height]);
+
+    });
 
     </script>
   </p>
+</body>
+
 </html>
