@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>INFO3300-Project1</title>
+  <script src="//d3js.org/d3.v4.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.5/d3-legend.js"></script>
+</head>
+<body>
+
+  <p>
+
+    <svg width="1200" height="600" id="graph">
+      <text x="300" y="25" font-family="sans-serif" font-size="20px" fill="Black">State vs. Number of Museums in State and State's Median Income (2015)</text>
+      <text x="375" y="60" font-family="sans-serif" font-size="12px"transform="rotate(90 20,40)"> Number of Museums in State</text>
+      <text x="700" y="600" font-family="sans-serif" font-size="10px"> *Data from the Institute of Museum and Library Services and the US Census</text>
+      <text x="200" y="600" font-family="sans-serif" font-size="12px"> State Name Abbreviation </text>
+      <text x="985" y="50" font-family="sans-serif" font-size="10px"> Annual Median Income</text>
+    </svg>
+
+    <script>
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = 1200 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+
+    // set the ranges
+    var x = d3.scaleBand()
+              .range([0, width])
+              .padding(0.1);
+    var y = d3.scaleLinear()
+              .domain([132, 2670])
+              .range([height, 0]);
+    var z = d3.scaleLinear()
+              .range([0.2,1]);
+
+    // append the svg object to the body of the page
+    // append a 'group' element to 'svg'
+    // moves the 'group' element to the top left margin
+    var svg = d3.select("#graph")
+    // var svg = d3.select("body")
+    // .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+    // get the data
+    d3.csv("Median.csv", function(error, data) {
+      if (error) throw error;
+
+      var colorRange = [];
+      // var museumsRange=[];
+
+      // format  data
+      data.forEach(function(d) {
+        d.sales = +d.sales;
+
+        colorRange.push(parseInt(d.median));
+
+        // museumsRange.push(parseInt(d.museums));
+      });
+
+      // Scaling range of the data in the domains
+      x.domain(data.map(function(d) { return d.state; }));
+      // y.domain([0, d3.max(museumsRange)]);
+      z.domain([d3.min(colorRange), d3.max(colorRange)]);
+
+      // Creating the bar chart rectangles
+      svg.selectAll(".bar")
+          .data(data)
+        .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.state); })
+          .attr("width", x.bandwidth())
+          .attr("y", function(d) { return y(d.museums); })
+          .attr("height", function(d) { return height - y(d.museums); })
+          .style("opacity", function(d) {console.log(z(d.median)); return z(d.median)})
+          .attr("fill", "#0A00C2");
+
+      // X Axis
+      svg.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+      // Y Axis
+      svg.append("g")
+          .call(d3.axisLeft(y));
+
+    });
+    var states=["AK","VA"];
+    var stateList=[];
+    //Load Museum dataset
+    d3.csv("MuseumList.csv", function(error, data) {
+      if (error) throw error;
+      console.log("Code in the call-back function is only executed when the data file loads.");
+      //Parse ADSTATE for each museum into an array
+      data.forEach(function(d) {
+        stateList.push(d.ADSTATE);
+
+      });
+      console.log(stateList);
+      var  museumCount = {};
+      stateList.forEach(function(i) { museumCount[i] = (museumCount[i]||0) + 1;});
+      console.log(stateList);
+      console.log(museumCount);
+
+      var allY= [];
+      Object.keys(museumCount).forEach(function (key) {
+        value = museumCount[key];
+        allY.push(value);
+      })
+      console.log(allY);
+      console.log(d3.min(allY));
+      console.log(d3.max(allY));
+      //scale of x and y axis
+      //var xScale = d3.scaleLinear().domain([0,50]).range([0,width]);
+      //var yScale = d3.scaleLinear().domain([0,museumCount()]).range([0,height]);
+
+      var log = d3.scaleLog()
+          .domain([40000, 75000])
+          .range(["rgb(209, 207, 241)", "rgb(25, 14, 186)"]);
+          // "rgb(209, 207, 241)", "rgb(25, 14, 186)"
+
+      var svg = d3.select("svg");
+
+      svg.append("g")
+        .attr("class", "legendLog")
+        .attr("transform", "translate(1000,60)");
+
+      var logLegend = d3.legendColor()
+        .cells([45000, 55000, 65000, 75000])
+        // .cells([45000, 55000, 65000, 75000])
+        .scale(log);
+
+      svg.select(".legendLog")
+        .call(logLegend);
+    });
+
+    </script>
+  </p>
+</body>
+
+</html>
