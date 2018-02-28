@@ -25,7 +25,10 @@
               .range([0, width])
               .padding(0.1);
     var y = d3.scaleLinear()
+              .domain([132, 2670])
               .range([height, 0]);
+    var z = d3.scaleLinear()
+              .range([0.2,1]);
 
     // append the svg object to the body of the page
     // append a 'group' element to 'svg'
@@ -43,21 +46,22 @@
     d3.csv("Median.csv", function(error, data) {
       if (error) throw error;
 
-      var museumsRange = [];
-      
+      var colorRange = [];
+      // var museumsRange=[];
+
       // format  data
       data.forEach(function(d) {
         d.sales = +d.sales;
 
-        museumsRange.push(parseInt(d.museums));
+        colorRange.push(parseInt(d.median));
+
+        // museumsRange.push(parseInt(d.museums));
       });
 
-      console.log(museumsRange);
-
-      console.log(d3.max(museumsRange));
       // Scaling range of the data in the domains
       x.domain(data.map(function(d) { return d.state; }));
-      y.domain([0, d3.max(museumsRange)]);
+      // y.domain([0, d3.max(museumsRange)]);
+      z.domain([d3.min(colorRange), d3.max(colorRange)]);
 
       // Creating the bar chart rectangles
       svg.selectAll(".bar")
@@ -67,7 +71,9 @@
           .attr("x", function(d) { return x(d.state); })
           .attr("width", x.bandwidth())
           .attr("y", function(d) { return y(d.museums); })
-          .attr("height", function(d) { return height - y(d.museums); });
+          .attr("height", function(d) { return height - y(d.museums); })
+          .style("opacity", function(d) {console.log(z(d.median)); return z(d.median)})
+          .attr("fill", "#0A00C2");
 
       // X Axis
       svg.append("g")
@@ -88,12 +94,22 @@
       //Parse ADSTATE for each museum into an array
       data.forEach(function(d) {
         stateList.push(d.ADSTATE);
+
       });
       console.log(stateList);
       var  museumCount = {};
       stateList.forEach(function(i) { museumCount[i] = (museumCount[i]||0) + 1;});
+      console.log(stateList);
       console.log(museumCount);
 
+      var allY= [];
+      Object.keys(museumCount).forEach(function (key) {
+        value = museumCount[key];
+        allY.push(value);
+      })
+      console.log(allY);
+      console.log(d3.min(allY));
+      console.log(d3.max(allY));
       //scale of x and y axis
       //var xScale = d3.scaleLinear().domain([0,50]).range([0,width]);
       //var yScale = d3.scaleLinear().domain([0,museumCount()]).range([0,height]);
